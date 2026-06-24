@@ -1,0 +1,251 @@
+class NoArvoreAVL:
+    def __init__(self, chave):
+        self.chave = chave
+        self.filhoEsq = None
+        self.filhoDir = None
+        self.pai = None
+
+class ArvoreAVL:
+    def __init__(self):
+        self.raiz = None
+
+    def insere(self, valor):
+        no = NoArvoreAVL(valor)
+        self.insereNo(no)
+
+    def insereNo(self, no):
+        if self.raiz == None:
+            self.raiz = no
+            return
+
+        noAtual = self.raiz
+        while True:
+            if no.chave < noAtual.chave:
+                if noAtual.filhoEsq == None:
+                    noAtual.filhoEsq = no
+                    no.pai = noAtual
+                    break
+                else:
+                    noAtual = noAtual.filhoEsq
+            elif no.chave > noAtual.chave:
+                if noAtual.filhoDir == None:
+                    noAtual.filhoDir = no
+                    no.pai = noAtual
+                    break
+                else:
+                    noAtual = noAtual.filhoDir
+            else:
+                return
+
+        self.__rebalancear(no.pai)
+
+    def imprime(self):
+        self.__imprimeSubArvore(self.raiz)
+
+    def __imprimeSubArvore(self, no):
+        if no == None:
+            return
+        self.__imprimeSubArvore(no.filhoEsq)
+        print(no.chave, end=" ")
+        self.__imprimeSubArvore(no.filhoDir)
+
+    def imprimeEstrutura(self):
+        self.__imprimeEstrutura(self.raiz, 0)
+
+    def __imprimeEstrutura(self, no, nivel):
+        if no == None:
+            return
+        self.__imprimeEstrutura(no.filhoDir, nivel + 1)
+        print("    " * nivel + str(no.chave))
+        self.__imprimeEstrutura(no.filhoEsq, nivel + 1)
+
+    def encontraNo(self, valorChave):
+        no = self.__encontraNoSubArvore(self.raiz, valorChave)
+        if no:
+            print(f"Elemento {valorChave} encontrado!")
+        else:
+            print(f"Elemento {valorChave} não encontrado.")
+        return no
+
+    def __encontraNoSubArvore(self, raiz, valorChave):
+        noAtual = raiz
+        while noAtual != None:
+            if noAtual.chave == valorChave:
+                return noAtual
+            elif noAtual.chave > valorChave:
+                noAtual = noAtual.filhoEsq
+            elif noAtual.chave < valorChave:
+                noAtual = noAtual.filhoDir
+        return None
+
+    def __calculaAltura(self, raizSub):
+        if raizSub == None:
+            return 0
+        alturaEsq = self.__calculaAltura(raizSub.filhoEsq)
+        alturaDir = self.__calculaAltura(raizSub.filhoDir)
+        return max(alturaEsq, alturaDir) + 1
+
+    def calculaAltura(self):
+        return self.__calculaAltura(self.raiz)
+
+    def maximo(self):
+        if self.raiz == None:
+            return None
+        maxNo = self.__maximoNo(self.raiz)
+        return maxNo.chave
+
+    def __maximoNo(self, raizSub):
+        if raizSub == None:
+            return None
+        noAtual = raizSub
+        while noAtual.filhoDir != None:
+            noAtual = noAtual.filhoDir
+        return noAtual
+
+    def remove(self, valorChave):
+        no = self.__encontraNoSubArvore(self.raiz, valorChave)
+        if no == None:
+            raise ValueError(f"Erro: Elemento {valorChave} não encontrado.")
+
+        noParaBalancear = self.__removeNo(no)
+        print(f"Elemento {valorChave} removido com sucesso!")
+
+        if noParaBalancear:
+            self.__rebalancear(noParaBalancear)
+
+    def __removeNo(self, no):
+        ehRaiz = (no == self.raiz)
+
+        if not ehRaiz:
+            pai = no.pai
+            if pai.filhoDir == no:
+                noFilhoDir = True
+            elif pai.filhoEsq == no:
+                noFilhoDir = False
+            else:
+                raise ValueError("Inconsistência no objeto!")
+
+        noParaBalancear = no.pai
+
+        if (no.filhoEsq == None) and (no.filhoDir == None):
+            if ehRaiz:
+                self.raiz = None
+            else:
+                if noFilhoDir:
+                    pai.filhoDir = None
+                else:
+                    pai.filhoEsq = None
+
+        elif (no.filhoEsq == None) or (no.filhoDir == None):
+            filho = no.filhoDir if no.filhoDir != None else no.filhoEsq
+
+            if ehRaiz:
+                self.raiz = filho
+                filho.pai = None
+            else:
+                if noFilhoDir:
+                    pai.filhoDir = filho
+                else:
+                    pai.filhoEsq = filho
+                filho.pai = pai
+
+        else:
+            antecessor = self.__maximoNo(no.filhoEsq)
+
+            if antecessor.pai == no:
+                noParaBalancear = no
+            else:
+                noParaBalancear = antecessor.pai
+
+            no.chave = antecessor.chave
+            self.__removeNo(antecessor)
+
+        return noParaBalancear
+
+    def __fatorBalanceamento(self, no):
+        if no == None:
+            return 0
+        return self.__calculaAltura(no.filhoEsq) - self.__calculaAltura(no.filhoDir)
+
+    def __rotacionaDireita(self, A):
+        B = A.filhoEsq
+        A.filhoEsq = B.filhoDir
+        if B.filhoDir != None:
+            B.filhoDir.pai = A
+
+        B.pai = A.pai
+        if A.pai == None:
+            self.raiz = B
+        elif A == A.pai.filhoEsq:
+            A.pai.filhoEsq = B
+        else:
+            A.pai.filhoDir = B
+
+        B.filhoDir = A
+        A.pai = B
+
+    def __rotacionaEsquerda(self, A):
+        B = A.filhoDir
+        A.filhoDir = B.filhoEsq
+        if B.filhoEsq != None:
+            B.filhoEsq.pai = A
+
+        B.pai = A.pai
+        if A.pai == None:
+            self.raiz = B
+        elif A == A.pai.filhoEsq:
+            A.pai.filhoEsq = B
+        else:
+            A.pai.filhoDir = B
+
+        B.filhoEsq = A
+        A.pai = B
+
+    def __rebalancear(self, no):
+        while no != None:
+            fb = self.__fatorBalanceamento(no)
+
+            if fb > 1:
+                if self.__fatorBalanceamento(no.filhoEsq) >= 0:
+                    self.__rotacionaDireita(no)
+                else:
+                    self.__rotacionaEsquerda(no.filhoEsq)
+                    self.__rotacionaDireita(no)
+
+            elif fb < -1:
+                if self.__fatorBalanceamento(no.filhoDir) <= 0:
+                    self.__rotacionaEsquerda(no)
+                else:
+                    self.__rotacionaDireita(no.filhoDir)
+                    self.__rotacionaEsquerda(no)
+
+            no = no.pai
+
+def main():
+    opcao = 0
+    arvore = ArvoreAVL()
+
+    while opcao != 5:
+        print("1 - Inserir Elemento\n"
+              "2 - Excluir Elemento\n"
+              "3 - Buscar Elemento\n"
+              "4 - Imprimir Árvore\n"
+              "5 - Sair")
+        opcao = int(input("opção: "))
+
+        if opcao == 1:
+            dado = int(input("Digite o valor para inserir:  "))
+            arvore.insere(dado)
+        elif opcao == 2:
+            dado = int(input("Digite o valor para excluir: "))
+            try:
+                arvore.remove(dado)
+            except ValueError as e:
+                print(e)
+        elif opcao == 3:
+            dado = int(input("Digite o valor para buscar: "))
+            arvore.encontraNo(dado)
+        elif opcao == 4:
+            arvore.imprimeEstrutura()
+
+main()
