@@ -1,0 +1,90 @@
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+
+
+class Grafo:
+
+    def __init__(self, matrizAdjacencia):
+        self.matriz = np.array(matrizAdjacencia)
+        self.num_vertices = len(self.matriz)
+
+    def obterVertices(self):
+        return list(range(self.num_vertices))
+
+    def gerar_agm(self):
+        matriz_agm = np.zeros((self.num_vertices, self.num_vertices))
+
+        visitados = [False] * self.num_vertices
+        visitados[0] = True
+
+        for _ in range(self.num_vertices - 1):
+            menor_peso = 999999
+            origem = -1
+            destino = -1
+
+            for i in range(self.num_vertices):
+                if visitados[i]:
+                    for j in range(self.num_vertices):
+                        if (
+                            not visitados[j]  and self.matriz[i][j] > 0 and self.matriz[i][j] < menor_peso
+                        ):
+                            menor_peso = self.matriz[i][j]
+                            origem = i
+                            destino = j
+
+            if origem != -1 and destino != -1:
+                matriz_agm[origem][destino] = menor_peso
+                matriz_agm[destino][origem] = menor_peso
+                visitados[destino] = True
+
+        return Grafo(matriz_agm)
+
+    def desenha(self, titulo="Grafo", pos=None):
+        G = nx.from_numpy_array(self.matriz)
+
+        if pos is None:
+            pos = nx.spring_layout(G, seed=42)
+
+        fig, ax = plt.subplots(figsize=(7, 5))
+        ax.set_title(titulo, fontsize=14, fontweight='bold')
+
+        nx.draw_networkx_nodes(G, pos, node_color='lightgreen',
+                               node_size=1500, edgecolors='black',
+                               linewidths=1.5, ax=ax)
+
+        nx.draw_networkx_labels(G, pos, ax=ax)
+
+        nx.draw_networkx_edges(G, pos, width=2, ax=ax)
+
+        labels = {
+            (u, v): int(d['weight'])
+            for u, v, d in G.edges(data=True)
+            if d['weight'] > 0
+        }
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=labels, ax=ax)
+
+        ax.axis('off')
+        plt.tight_layout()
+        plt.show()
+
+
+teste = np.array([
+    [0, 11, 25,  0,  0, 12],
+    [11, 0, 18, 21,  0, 12],
+    [25, 18, 0,  0, 10, 13],
+    [0, 21, 0,  0, 13,  0],
+    [0,  0, 10, 13,  0,  0],
+    [12, 12, 13,  0,  0,  0]
+])
+
+
+meu_grafo = Grafo(teste)
+
+print("Grafo Original:")
+meu_grafo.desenha(titulo="Grafo Original")
+
+grafo_da_agm = meu_grafo.gerar_agm()
+
+print("Árvore Geradora Mínima (AGM):")
+grafo_da_agm.desenha(titulo="Árvore Geradora Mínima (AGM)")
