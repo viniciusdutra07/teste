@@ -1,0 +1,88 @@
+class Fila:
+    def __init__(self, n):
+        self.fila = [None] * n
+        self.inicio = 0
+        self.final = 0
+        self.tamanho = 0
+        self.max = n
+
+    def insere(self, elemento):
+        if self.tamanho == self.max:
+            raise IndexError('A fila está cheia')
+
+        self.fila[self.final] = elemento
+        self.final = (self.final + 1) % self.max
+        self.tamanho += 1
+
+    def posicao(self, elemento):
+        ordem = 1
+        atual = self.inicio
+        for i in range(self.tamanho):
+            if self.fila[atual] == elemento:
+                return ordem
+            atual = (atual + 1) % self.max
+            ordem += 1
+
+        return -1
+
+    def remove(self):
+        if len(self) == 0:
+            raise IndexError("A fila está vazia")
+
+        valor = self.fila[self.inicio]
+        self.fila[self.inicio] = None
+        self.inicio = (self.inicio + 1) % self.max
+        self.tamanho -= 1
+        return valor
+
+    def __str__(self):
+        if self.tamanho == 0:
+            return "[]"
+
+        elementos = []
+        atual = self.inicio
+        for _ in range(self.tamanho):
+            elementos.append(str(self.fila[atual]))
+            atual = (atual + 1) % self.max
+        return "[" + ", ".join(elementos) + "]"
+
+    def __len__(self):
+        return self.tamanho
+
+
+def main():
+    tamanho = int(input("Tamanho máximo da fila: "))
+    fila = Fila(tamanho)
+    opcao = 0
+
+    while opcao != 5:
+        print("1 - Inserir Elemento\n"
+              "2 - Remover Elemento\n"
+              "3 - Retornar a ordem do elemento na fila\n"
+              "4 - Converter fila para string\n"
+              "5 - Retornar o número de elementos na fila")
+        opcao = int(input("opção: "))
+
+        if opcao == 1:
+            elemento = int(input("Digite o valor para inserir: "))
+            try:
+                fila.insere(elemento)
+            except IndexError as e:
+                print(e)
+        elif opcao == 2:
+            try:
+                valor = fila.remove()
+                print(f"Elemento removido: {valor}")
+            except IndexError as e:
+                print(e)
+        elif opcao == 3:
+            elemento = int(input("Digite o valor para buscar: "))
+            print(fila.posicao(elemento))
+        elif opcao == 4:
+            print(fila)
+        elif opcao == 5:
+            print(len(fila))
+
+
+if __name__ == "__main__":
+    main()
