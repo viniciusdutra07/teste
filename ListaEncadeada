@@ -1,0 +1,110 @@
+class No:
+    def __init__(self, valor):
+        self.proximo = None
+        self.valor = valor
+
+
+class ListaEncadeada:
+    def __init__(self):
+        self.cabeca = None
+
+    def insere(self, valor):
+        novoNo = No(valor)
+        if self.cabeca == None or valor < self.cabeca.valor:
+            novoNo.proximo = self.cabeca
+            self.cabeca = novoNo
+            return
+
+        atual = self.cabeca
+        while atual.proximo != None and atual.proximo.valor < valor:
+            atual = atual.proximo
+        novoNo.proximo = atual.proximo
+        atual.proximo = novoNo
+
+    def __contains__(self, elemento):
+        interador = self.cabeca
+        while interador != None:
+            if interador.valor == elemento:
+                return True
+            interador = interador.proximo
+        return False
+
+    def remove(self, elemento):
+        if self.cabeca == None:
+            return False
+
+        if self.cabeca.valor == elemento:
+            self.cabeca = self.cabeca.proximo
+            return True
+
+        interador = self.cabeca
+        while interador.proximo != None:
+            if interador.proximo.valor == elemento:
+                interador.proximo = interador.proximo.proximo
+                return True
+            interador = interador.proximo
+        return False
+
+    def __str__(self):
+        s = "| "
+        interador = self.cabeca
+        while interador != None:
+            s += f"{interador.valor} -> "
+            interador = interador.proximo
+        if self.cabeca != None:
+            s = s[:-4]
+        s += " |"
+        return s
+
+    def GeraListaInvertida(self):
+        listaInvertida = ListaEncadeada()
+        interador = self.cabeca
+
+        while interador != None:
+            novoValor = interador.valor * -1
+            novoNo = No(novoValor)
+
+            novoNo.proximo = listaInvertida.cabeca
+            listaInvertida.cabeca = novoNo
+
+            interador = interador.proximo
+
+        return listaInvertida
+
+
+def main():
+    lista = ListaEncadeada()
+    opcao = 0
+
+    while opcao != 5:
+        print("1 - Inserir Elemento\n"
+              "2 - Remover Elemento\n"
+              "3 - Buscar Elemento\n"
+              "4 - Converter lista para string\n"
+              "5 - Gerar uma lista invertida com todos os elementos multiplicados por -1")
+        opcao = int(input("opção: "))
+
+        if opcao == 1:
+            elemento = int(input("Digite o valor para inserir: "))
+            lista.insere(elemento)
+        elif opcao == 2:
+            elemento = int(input("Digite o valor para excluir: "))
+            if lista.remove(elemento):
+                print(f"Elemento {elemento} removido com sucesso.")
+            else:
+                print(f"Elemento {elemento} não encontrado.")
+        elif opcao == 3:
+            elemento = int(input("Digite o valor para buscar: "))
+            if elemento in lista:
+                print(f"O elemento {elemento} está na lista.")
+            else:
+                print(f"O elemento {elemento} não está na lista.")
+        elif opcao == 4:
+            print(lista)
+        elif opcao == 5:
+            invertida = lista.GeraListaInvertida()
+            print(invertida)
+
+
+if __name__ == "__main__":
+    main()
