@@ -1,0 +1,160 @@
+class Pilha:
+  def __init__(self, n):
+    self.pilha = [None] * n
+    self.ultimo = -1
+    self.max = n
+
+  def posicao (self, elemento):
+      ordem = 1
+      for i in range(self.ultimo, -1 ,-1):
+          if self.pilha[i] == elemento:
+              return f'A ordem do elemento {elemento} é {ordem}'
+          ordem += 1
+      return -1
+
+
+  def insere(self, elemento):
+    if self.ultimo < self.max - 1:
+      self.ultimo += 1
+      self.pilha[self.ultimo] = elemento
+    else:
+      raise IndexError("A pilha está cheia")
+
+  def remove (self):
+    if self.ultimo >= 0:
+      valor = self.pilha[self.ultimo]
+      self.pilha[self.ultimo] = None
+      self.ultimo -= 1
+      return valor
+    else:
+      raise IndexError("A pilha está vazia")
+
+  def __str__(self):
+    if self.ultimo == -1:
+        return "[]"
+
+    resultado = "["
+    for i in range(self.ultimo + 1):
+        resultado += str(self.pilha[i])
+        if i < self.ultimo:
+            resultado += ", "
+    resultado += "]"
+    return resultado
+
+  def verifica_sintaxe(self, texto):
+      pilha = Pilha(len(texto))
+      for verifica in texto:
+          if verifica in "([{":
+              pilha.insere(verifica)
+          elif verifica in ")]}":
+              if pilha.ultimo == -1:
+                  return "errado"
+              topo = pilha.remove()
+              if (verifica == ")" and topo != "(") or \
+                      (verifica == "]" and topo != "[") or \
+                      (verifica == "}" and topo != "{"):
+                  return "errado"
+      if pilha.ultimo == -1:
+          return "ok"
+      else:
+          return "errado"
+
+class Pilha:
+    def __init__(self, n):
+        self.pilha = [None] * n
+        self.ultimo = -1
+        self.max = n
+
+    def posicao(self, elemento):
+        ordem = 1
+        for i in range(self.ultimo, -1, -1):
+            if self.pilha[i] == elemento:
+                return f'A ordem do elemento {elemento} é {ordem}'
+            ordem += 1
+        return -1
+
+    def insere(self, elemento):
+        if self.ultimo < self.max - 1:
+            self.ultimo += 1
+            self.pilha[self.ultimo] = elemento
+        else:
+            raise IndexError("A pilha está cheia")
+
+    def remove(self):
+        if self.ultimo >= 0:
+            valor = self.pilha[self.ultimo]
+            self.pilha[self.ultimo] = None
+            self.ultimo -= 1
+            return valor
+        else:
+            raise IndexError("A pilha está vazia")
+
+    def __str__(self):
+        if self.ultimo == -1:
+            return "[]"
+
+        resultado = "["
+        for i in range(self.ultimo + 1):
+            resultado += str(self.pilha[i])
+            if i < self.ultimo:
+                resultado += ", "
+        resultado += "]"
+        return resultado
+
+    def verifica_sintaxe(self, texto):
+        pilha = Pilha(len(texto))
+        for verifica in texto:
+            if verifica in "([{":
+                pilha.insere(verifica)
+            elif verifica in ")]}":
+                if pilha.ultimo == -1:
+                    return "errado"
+                topo = pilha.remove()
+                if (verifica == ")" and topo != "(") or \
+                        (verifica == "]" and topo != "[") or \
+                        (verifica == "}" and topo != "{"):
+                    return "errado"
+        if pilha.ultimo == -1:
+            return "ok"
+        else:
+            return "errado"
+
+
+def main():
+    tamanho = int(input("Tamanho máximo da pilha: "))
+    pilha = Pilha(tamanho)
+    opcao = 0
+
+    while opcao != 5:
+        print("1 - Inserir Elemento\n"
+              "2 - Remover Elemento\n"
+              "3 - Buscar Elemento\n"
+              "4 - Imprimir pilha\n"
+              "5 - Verifica sintaxe")
+        opcao = int(input("opção: "))
+
+        if opcao == 1:
+            elemento = int(input("Digite o valor para inserir: "))
+            try:
+                pilha.insere(elemento)
+            except IndexError as e:
+                print(e)
+        elif opcao == 2:
+            try:
+                valor = pilha.remove()
+                print(f"Elemento removido: {valor}")
+            except IndexError as e:
+                print(e)
+        elif opcao == 3:
+            elemento = int(input("Digite o valor para buscar: "))
+            print(pilha.posicao(elemento))
+        elif opcao == 4:
+            print(pilha)
+        elif opcao == 5:
+            expressao = input("Insira a expressão: ")
+            resultado = pilha.verifica_sintaxe(expressao)
+            print(f"{expressao} : {resultado}")
+
+
+if __name__ == "__main__":
+    main()
